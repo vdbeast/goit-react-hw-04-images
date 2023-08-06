@@ -11,9 +11,11 @@ const ImageGallery = ({ query }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        fetchImages();
+        if (query) {
+            fetchImages();
+        }
     }, [query, page]);
-    
+
     const fetchImages = () => {
         const apiKey = '37409826-b0d240e7599af91354a714518';
         setIsLoading(true);
@@ -34,17 +36,15 @@ const ImageGallery = ({ query }) => {
         setPage((prevPage) => prevPage + 1)
     };
 
-    if (images.length === 0 && !isLoading) {
-        return null;
-    };
-
     return (
         <div>
-            <ul className="ImageGallery">
-                {images.map((image, index) => (
-                    <ImageGalleryItem key={index} image={image} />
-                ))}
-            </ul>
+            {query && images.length > 0 && (
+                <ul className="ImageGallery">
+                    {images.map((image, index) => (
+                        <ImageGalleryItem key={index} image={image} />
+                    ))}
+                </ul>
+            )}
             {isLoading && <Loader />}
             {!isLoading && images.length > 0 && <Button onLoadMore={handleLoadMore}/>}
         </div>
