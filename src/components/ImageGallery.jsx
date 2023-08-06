@@ -12,6 +12,14 @@ const ImageGallery = ({ query }) => {
 
     useEffect(() => {
         if (query) {
+            setPage(1);
+            setImages([]);
+            fetchImages();
+        }
+    }, [query]);
+
+    useEffect(() => {
+        if (query && page > 1) {
             fetchImages();
         }
     }, [query, page]);
@@ -38,7 +46,7 @@ const ImageGallery = ({ query }) => {
 
     return (
         <div>
-            {query && images.length > 0 && (
+            {images.length > 0 && (
                 <ul className="ImageGallery">
                     {images.map((image, index) => (
                         <ImageGalleryItem key={index} image={image} />
