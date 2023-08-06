@@ -5,6 +5,22 @@ import ImageGalleryItem from "./ImageGalleryItem";
 import Loader from "./Loader";
 import Button from "./Button";
 
+const fetchImages = (query, page, setImages, setIsLoading) => {
+    const apiKey = '37409826-b0d240e7599af91354a714518';
+    setIsLoading(true);
+
+    axios
+        .get(`https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`)
+        .then((response) => {
+            setImages((prevImages) => [...prevImages, ...response.data.hits]);
+            setIsLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error fetching images:', error);
+            setIsLoading(false);
+        });
+};
+
 const ImageGallery = ({ query }) => {
     const [page, setPage] = useState(1);
     const [images, setImages] = useState([]);
@@ -14,31 +30,15 @@ const ImageGallery = ({ query }) => {
         if (query) {
             setPage(1);
             setImages([]);
-            fetchImages();
+            fetchImages(query, 1, setImages, setIsLoading);
         }
     }, [query]);
 
     useEffect(() => {
         if (query && page > 1) {
-            fetchImages();
+            fetchImages(query, page, setImages, setIsLoading);
         }
     }, [query, page]);
-
-    const fetchImages = () => {
-        const apiKey = '37409826-b0d240e7599af91354a714518';
-        setIsLoading(true);
-
-        axios
-            .get(`https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`)
-            .then((response) => {
-                setImages((prevImages) => [...prevImages, ...response.data.hits]);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching images:', error);
-                setIsLoading(false);
-            })
-    };
 
     const handleLoadMore = () => {
         setPage((prevPage) => prevPage + 1)
@@ -58,7 +58,6 @@ const ImageGallery = ({ query }) => {
         </div>
     )
 }
-    
 
 ImageGallery.propTypes = {
     query: PropTypes.string.isRequired,
