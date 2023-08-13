@@ -1,44 +1,42 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
-import axios from "axios";
 import ImageGalleryItem from "./ImageGalleryItem";
 import Loader from "./Loader";
 import Button from "./Button";
-
-const fetchImages = (query, page, setImages, setIsLoading) => {
-    const apiKey = '37409826-b0d240e7599af91354a714518';
-    setIsLoading(true);
-
-    axios
-        .get(`https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`)
-        .then((response) => {
-            setImages((prevImages) => [...prevImages, ...response.data.hits]);
-            setIsLoading(false);
-        })
-        .catch((error) => {
-            console.error('Error fetching images:', error);
-            setIsLoading(false);
-        });
-};
+import { fetchImages } from './services';
 
 const ImageGallery = ({ query }) => {
-    const [page, setPage] = useState(1);
-    const [images, setImages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [prevQuery, setPrevQuery] = useState('');
 
-    useEffect(() => {
-        if (query) {
-            setPage(1);
-            setImages([]);
-            fetchImages(query, 1, setImages, setIsLoading);
-        }
-    }, [query]);
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    if (query === prevQuery) {
+      fetchImages(query, page)
+        .then(({ hits }) => {
+          if (page > 1) {
+            setImages(prevImages => [...prevImages, ...hits]);
+          } else {
+            setImages(hits);
+          }
 
-    useEffect(() => {
-        if (query && page > 1) {
-            fetchImages(query, page, setImages, setIsLoading);
-        }
-    }, [query, page]);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching images:', error);
+          setIsLoading(false);
+        });
+    } else {
+      setImages([]);
+      setIsLoading(true);
+      setPage(1);
+      setPrevQuery(query);
+    }
+  }, [query, page, prevQuery]);
 
     const handleLoadMore = () => {
         setPage((prevPage) => prevPage + 1)
