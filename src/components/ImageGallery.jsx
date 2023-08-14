@@ -23,7 +23,6 @@ const ImageGallery = ({ query }) => {
           } else {
             setImages(hits);
           }
-
           setIsLoading(false);
         })
         .catch(error => {
@@ -39,7 +38,8 @@ const ImageGallery = ({ query }) => {
   }, [query, page, prevQuery]);
 
     const handleLoadMore = () => {
-        setPage((prevPage) => prevPage + 1)
+      setPage((prevPage) => prevPage + 1);
+      setIsLoading(true);
     };
 
     return (
